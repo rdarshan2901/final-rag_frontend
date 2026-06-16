@@ -1,7 +1,7 @@
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ||
   "https://rag-project-production-acdd.up.railway.app";
-  
+
 export interface ChatRequest {
   message: string;
   book: string;
@@ -13,18 +13,30 @@ export interface ChatResponse {
   answer: string;
 }
 
-export async function sendMessage(message: string, book: string): Promise<ChatResponse> {
-  const response = await fetch(`${API_BASE}/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, book } as ChatRequest),
-  });
+export async function sendMessage(
+  message: string,
+  book: string
+): Promise<ChatResponse> {
+  try {
+    const response = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message,
+        book,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "Unknown error");
-    throw new Error(`API error ${response.status}: ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Backend Error:", error);
+    throw new Error("Could not connect to Railway backend.");
   }
-
-  const data: ChatResponse = await response.json();
-  return data;
 }
