@@ -5,6 +5,7 @@ const API_BASE =
 export interface ChatRequest {
   message: string;
   book: string;
+  books: string[];
 }
 
 export interface ChatResponse {
@@ -15,7 +16,7 @@ export interface ChatResponse {
 
 export async function sendMessage(
   message: string,
-  book: string
+  books: string[]
 ): Promise<ChatResponse> {
   try {
     const response = await fetch(`${API_BASE}/chat`, {
@@ -25,7 +26,8 @@ export async function sendMessage(
       },
       body: JSON.stringify({
         message,
-        book,
+        book: books.join(", "),
+        books,
       }),
     });
 

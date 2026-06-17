@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { nanoid } from "@/lib/nanoid";
 import { sendMessage } from "@/lib/api";
 import { Message, Chat } from "@/lib/types";
 import Sidebar from "@/components/Sidebar";
+import BookPanel from "@/components/BookPanel";
+import { BOOKS } from "@/components/BookSelector";
 import ChatBubble, { TypingIndicator } from "@/components/ChatBubble";
 import ChatInput from "@/components/ChatInput";
 import EmptyState from "@/components/EmptyState";
@@ -17,7 +19,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [lastAiMsgId, setLastAiMsgId] = useState<string | null>(null);
-  const [selectedBook, setSelectedBook] = useState<string>("");
+  const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
@@ -34,6 +36,15 @@ export default function ChatPage() {
   useEffect(() => {
     if (window.innerWidth < 1024) setSidebarOpen(false);
   }, []);
+
+  const toggleBook = (book: string) => {
+    setSelectedBooks((prev) =>
+      prev.includes(book) ? prev.filter((b) => b !== book) : [...prev, book]
+    );
+  };
+
+  const clearBooks = () => setSelectedBooks([]);
+  const selectAllBooks = () => setSelectedBooks([...BOOKS]);
 
   const createNewChat = (): Chat => {
     const chat: Chat = {
@@ -70,7 +81,7 @@ export default function ChatPage() {
   };
 
   const handleSend = async (text: string) => {
-    if (!selectedBook) return;
+    if (selectedBooks.length === 0) return;
 
     let chatId = activeChatId;
 
@@ -103,7 +114,7 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const res = await sendMessage(text, selectedBook);
+      const res = await sendMessage(text, selectedBooks);
 
       const aiId = nanoid();
 
@@ -148,7 +159,10 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "#fff" }}>
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ background: "var(--main-bg)" }}
+    >
       <Sidebar
         chats={chats}
         activeChatId={activeChatId}
@@ -157,32 +171,21 @@ export default function ChatPage() {
         onDeleteChat={handleDeleteChat}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((v) => !v)}
-        selectedBook={selectedBook}
-        onSelectBook={setSelectedBook}
       />
 
       <main className="flex-1 flex flex-col min-w-0">
         <header
           className="flex-shrink-0 flex items-center gap-3 px-4 py-3"
-          style={{ borderBottom: "1px solid #f0f0f0", background: "#fff" }}
+          style={{
+            borderBottom: "1px solid var(--border)",
+            background: "var(--main-bg)",
+          }}
         >
-          <button
-            onClick={() => setSidebarOpen((v) => !v)}
-            className="p-2 rounded-lg transition-colors"
-            style={{ color: "#6b6b6b" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#f4f4f4")}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-          >
-            <Menu size={18} />
-          </button>
-
           <div className="flex items-center gap-2 min-w-0">
-            <BookOpen size={15} style={{ color: "#d97706", flexShrink: 0 }} />
+            <BookOpen size={15} style={{ color: "#7B2525", flexShrink: 0 }} />
             <span
               className="text-sm font-medium truncate"
-              style={{ color: "#1a1a1a" }}
+              style={{ color: "#2a1818" }}
             >
               {activeChat && activeChat.title !== "New conversation"
                 ? activeChat.title
@@ -190,35 +193,44 @@ export default function ChatPage() {
             </span>
           </div>
 
-          {selectedBook && (
+          {selectedBooks.length > 0 && (
             <span
               className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium flex-shrink-0"
               style={{
-                background: "#fef3c7",
-                color: "#92400e",
-                border: "1px solid #fde68a",
+                background: "#EEE0CC",
+                color: "#7B2525",
+                border: "1px solid #BA6A4C",
               }}
             >
               <BookOpen size={9} />
-              {selectedBook}
+              {selectedBooks.length === 1
+                ? selectedBooks[0]
+                : `${selectedBooks.length} books`}
             </span>
           )}
 
           <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
             <div
               className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                isLoading ? "bg-amber-400 animate-pulse" : "bg-emerald-400"
+                isLoading ? "animate-pulse" : ""
               }`}
+              style={{ background: isLoading ? "#BA6A4C" : "#607456" }}
             />
-            <span className="text-[11px]" style={{ color: "#bbb" }}>
+            <span className="text-[11px]" style={{ color: "#8a7563" }}>
               {isLoading ? "The Guru is thinking…" : "Ready"}
             </span>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto" style={{ background: "#fff" }}>
+        <div
+          className="flex-1 overflow-y-auto"
+          style={{ background: "var(--main-bg)" }}
+        >
           {messages.length === 0 && !isLoading ? (
-            <EmptyState onSuggestion={handleSend} selectedBook={selectedBook} />
+            <EmptyState
+              onSuggestion={handleSend}
+              selectedBooks={selectedBooks}
+            />
           ) : (
             <div className="max-w-3xl mx-auto">
               <AnimatePresence initial={false}>
@@ -250,22 +262,35 @@ export default function ChatPage() {
 
         <div
           className="flex-shrink-0 px-4 pb-5 pt-4"
-          style={{ borderTop: "1px solid #f0f0f0", background: "#fff" }}
+          style={{
+            borderTop: "1px solid var(--border)",
+            background: "var(--main-bg)",
+          }}
         >
           <div className="max-w-3xl mx-auto">
             <ChatInput
               onSend={handleSend}
               isLoading={isLoading}
-              selectedBook={selectedBook}
+              selectedBooks={selectedBooks}
             />
 
-            <p className="text-center text-[11px] mt-2.5" style={{ color: "#ccc" }}>
+            <p
+              className="text-center text-[11px] mt-2.5"
+              style={{ color: "#8a7563" }}
+            >
               Answers are derived from Yogiraj Vethathiri Maharishi&apos;s
               published works via RAG.
             </p>
           </div>
         </div>
       </main>
+
+      <BookPanel
+        selectedBooks={selectedBooks}
+        onToggleBook={toggleBook}
+        onClearBooks={clearBooks}
+        onSelectAllBooks={selectAllBooks}
+      />
     </div>
   );
 }

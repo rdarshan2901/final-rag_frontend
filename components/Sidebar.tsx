@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Plus, MessageSquare, Trash2, BookOpen, X } from "lucide-react";
 import { Chat } from "@/lib/types";
-import BookSelector from "@/components/BookSelector";
 
 interface SidebarProps {
   chats: Chat[];
@@ -13,13 +12,11 @@ interface SidebarProps {
   onDeleteChat: (id: string) => void;
   isOpen: boolean;
   onToggle: () => void;
-  selectedBook: string;
-  onSelectBook: (book: string) => void;
 }
 
 export default function Sidebar({
   chats, activeChatId, onNewChat, onSelectChat, onDeleteChat,
-  isOpen, onToggle, selectedBook, onSelectBook,
+  isOpen, onToggle,
 }: SidebarProps) {
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -42,15 +39,15 @@ export default function Sidebar({
         {/* ── Header / Logo ── */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#d97706" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#7B2525" }}>
               <BookOpen size={15} className="text-white" />
             </div>
             <div>
-              <p className="text-[13px] leading-none" style={{ color: "#1a1a1a", fontWeight: 600 }}>Vethathiri</p>
-              <p className="text-[10px] mt-0.5" style={{ color: "#9b9b9b" }}>Wisdom · RAG</p>
+              <p className="text-[13px] leading-none" style={{ color: "#2a1818", fontWeight: 600 }}>Vethathiri</p>
+              <p className="text-[10px] mt-0.5" style={{ color: "#8a7563" }}>Wisdom · RAG</p>
             </div>
           </div>
-          <button onClick={onToggle} className="lg:hidden p-1.5 rounded-md hover:bg-[#efefef] transition-colors" style={{ color: "#6b6b6b" }}>
+          <button onClick={onToggle} className="lg:hidden p-1.5 rounded-md transition-colors" style={{ color: "#5a4438" }}>
             <X size={16} />
           </button>
         </div>
@@ -58,16 +55,9 @@ export default function Sidebar({
         {/* ── New Chat ── */}
         <div className="px-3 pb-3">
           <button className="new-chat-btn" onClick={onNewChat}>
-            <Plus size={15} style={{ color: "#6b6b6b" }} />
+            <Plus size={15} style={{ color: "#7B2525" }} />
             <span>New conversation</span>
           </button>
-        </div>
-
-        <div style={{ borderTop: "1px solid var(--border)" }} />
-
-        {/* ── Book Selector ── */}
-        <div className="pt-3">
-          <BookSelector selected={selectedBook} onSelect={onSelectBook} />
         </div>
 
         <div style={{ borderTop: "1px solid var(--border)" }} />
@@ -76,12 +66,12 @@ export default function Sidebar({
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
           {chats.length === 0 ? (
             <div className="px-3 py-6 text-center">
-              <MessageSquare size={20} className="mx-auto mb-2" style={{ color: "#ddd" }} />
-              <p className="text-xs" style={{ color: "#bbb" }}>No conversations yet</p>
+              <MessageSquare size={20} className="mx-auto mb-2" style={{ color: "#BA6A4C" }} />
+              <p className="text-xs" style={{ color: "#8a7563" }}>No conversations yet</p>
             </div>
           ) : (
             <>
-              <p className="px-2 pb-1.5 text-[10px] font-semibold tracking-widest uppercase" style={{ color: "#bbb" }}>Recent</p>
+              <p className="px-2 pb-1.5 text-[10px] font-semibold tracking-widest uppercase" style={{ color: "#7B2525" }}>Recent</p>
               {chats.map((chat) => (
                 <div
                   key={chat.id}
@@ -93,16 +83,16 @@ export default function Sidebar({
                     className={`chat-item ${activeChatId === chat.id ? "active" : ""}`}
                     onClick={() => onSelectChat(chat.id)}
                   >
-                    <MessageSquare size={13} style={{ flexShrink: 0, opacity: 0.5 }} />
+                    <MessageSquare size={13} style={{ flexShrink: 0, opacity: 0.6, color: "#7B2525" }} />
                     <span className="truncate">{chat.title}</span>
                   </button>
                   {hovered === chat.id && (
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeleteChat(chat.id); }}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors"
-                      style={{ color: "#bbb" }}
-                      onMouseEnter={e => (e.currentTarget.style.color = "#ef4444")}
-                      onMouseLeave={e => (e.currentTarget.style.color = "#bbb")}
+                      style={{ color: "#8a7563" }}
+                      onMouseEnter={e => (e.currentTarget.style.color = "#7B2525")}
+                      onMouseLeave={e => (e.currentTarget.style.color = "#8a7563")}
                     >
                       <Trash2 size={12} />
                     </button>
@@ -115,9 +105,9 @@ export default function Sidebar({
 
         {/* ── Footer ── */}
         <div style={{ borderTop: "1px solid var(--border)", padding: "12px 16px" }}>
-          <p className="text-[11px]" style={{ color: "#bbb", lineHeight: 1.5 }}>
+          <p className="text-[11px]" style={{ color: "#5a4438", lineHeight: 1.5 }}>
             Answers sourced from the books of<br />
-            <span style={{ color: "#d97706", fontWeight: 600 }}>Yogiraj Vethathiri Maharishi</span>
+            <span style={{ color: "#7B2525", fontWeight: 600 }}>Yogiraj Vethathiri Maharishi</span>
           </p>
         </div>
       </aside>

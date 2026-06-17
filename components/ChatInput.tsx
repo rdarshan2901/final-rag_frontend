@@ -6,13 +6,15 @@ import { ArrowUp, BookOpen, AlertCircle } from "lucide-react";
 interface ChatInputProps {
   onSend: (msg: string) => void;
   isLoading: boolean;
-  selectedBook: string;
+  selectedBooks: string[];
 }
 
-export default function ChatInput({ onSend, isLoading, selectedBook }: ChatInputProps) {
+export default function ChatInput({ onSend, isLoading, selectedBooks }: ChatInputProps) {
   const [value, setValue] = useState("");
   const [showWarning, setShowWarning] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
+
+  const hasBooks = selectedBooks.length > 0;
 
   useEffect(() => { ref.current?.focus(); }, []);
 
@@ -25,13 +27,13 @@ export default function ChatInput({ onSend, isLoading, selectedBook }: ChatInput
 
   // Hide warning once a book is selected
   useEffect(() => {
-    if (selectedBook) setShowWarning(false);
-  }, [selectedBook]);
+    if (hasBooks) setShowWarning(false);
+  }, [hasBooks]);
 
   const send = () => {
     const t = value.trim();
     if (!t || isLoading) return;
-    if (!selectedBook) { setShowWarning(true); return; }
+    if (!hasBooks) { setShowWarning(true); return; }
     setShowWarning(false);
     onSend(t);
     setValue("");
@@ -42,25 +44,44 @@ export default function ChatInput({ onSend, isLoading, selectedBook }: ChatInput
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
-  const canSend = value.trim().length > 0 && !isLoading && !!selectedBook;
+  const canSend = value.trim().length > 0 && !isLoading && hasBooks;
+
+  const placeholder = hasBooks
+    ? selectedBooks.length === 1
+      ? `Ask about "${selectedBooks[0]}"…`
+      : `Ask across ${selectedBooks.length} selected books…`
+    : "Select a book first, then ask your question…";
 
   return (
     <div className="space-y-2">
-      {/* ── Selected book badge ── */}
-      <div className="flex items-center gap-2 px-1">
-        <span className="text-[11px]" style={{ color: "#9b9b9b" }}>Selected Book:</span>
-        {selectedBook ? (
-          <span
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-            style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" }}
-          >
-            <BookOpen size={10} />
-            {selectedBook}.pdf
-          </span>
+      {/* ── Selected book badges ── */}
+      <div className="flex flex-wrap items-center gap-2 px-1">
+        <span className="text-[11px]" style={{ color: "#8a7563" }}>
+          Selected {selectedBooks.length === 1 ? "Book" : "Books"}:
+        </span>
+        {hasBooks ? (
+          selectedBooks.map((b) => (
+            <span
+              key={b}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+              style={{
+                background: "#EEE0CC",
+                color: "#7B2525",
+                border: "1px solid #BA6A4C",
+              }}
+            >
+              <BookOpen size={10} />
+              {b}.pdf
+            </span>
+          ))
         ) : (
           <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px]"
-            style={{ background: "#f4f4f4", color: "#aaa", border: "1px solid #e5e5e5" }}
+            style={{
+              background: "#f4ead6",
+              color: "#8a7563",
+              border: "1px solid #d9c9ad",
+            }}
           >
             None selected
           </span>
@@ -71,10 +92,10 @@ export default function ChatInput({ onSend, isLoading, selectedBook }: ChatInput
       {showWarning && (
         <div
           className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px]"
-          style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#c2410c" }}
+          style={{ background: "#f4ead6", border: "1px solid #BA6A4C", color: "#7B2525" }}
         >
           <AlertCircle size={13} style={{ flexShrink: 0 }} />
-          Please select a book from the sidebar before sending a message.
+          Please tick at least one book on the right before sending a message.
         </div>
       )}
 
@@ -82,9 +103,9 @@ export default function ChatInput({ onSend, isLoading, selectedBook }: ChatInput
       <div
         className="input-wrap rounded-2xl transition-all duration-200"
         style={{
-          border: showWarning ? "1.5px solid #fed7aa" : "1.5px solid var(--border-input)",
-          background: "#fff",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+          border: showWarning ? "1.5px solid #BA6A4C" : "1.5px solid var(--border-input)",
+          background: "#FBF7EE",
+          boxShadow: "0 2px 12px rgba(91,38,38,0.07)",
         }}
       >
         <textarea
@@ -93,25 +114,20 @@ export default function ChatInput({ onSend, isLoading, selectedBook }: ChatInput
           onChange={e => setValue(e.target.value)}
           onKeyDown={handleKey}
           disabled={isLoading}
-          placeholder={
-            selectedBook
-              ? `Ask about "${selectedBook}"…`
-              : "Select a book first, then ask your question…"
-          }
+          placeholder={placeholder}
           rows={1}
           className="w-full bg-transparent resize-none px-4 pt-3.5 pb-2 text-[15px] leading-relaxed focus:outline-none disabled:opacity-50"
-          style={{ color: "#1a1a1a", minHeight: 52, maxHeight: 180 }}
+          style={{ color: "#2a1818", minHeight: 52, maxHeight: 180 }}
         />
         <div className="flex items-center justify-between px-3 pb-3 pt-1">
-          <p className="text-[11px]" style={{ color: "#bbb" }}>
+          <p className="text-[11px]" style={{ color: "#8a7563" }}>
             {isLoading ? "The Guru is thinking…" : "Shift+Enter for new line · Enter to send"}
           </p>
           <button
             className="send-btn"
             onClick={send}
             disabled={!canSend}
-            title={!selectedBook ? "Select a book first" : "Send"}
-            style={canSend ? { background: "#1a1a1a" } : { background: "#e5e5e5", color: "#aaa" }}
+            title={!hasBooks ? "Select a book first" : "Send"}
           >
             {isLoading ? (
               <div className="w-4 h-4 border-2 rounded-full border-white/30 border-t-white animate-spin" />

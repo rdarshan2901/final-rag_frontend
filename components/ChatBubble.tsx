@@ -73,8 +73,8 @@ export default function ChatBubble({ message, index, animate = false }: ChatBubb
       className="msg-enter flex gap-4 px-4 py-5"
       style={{
         animationDelay: `${Math.min(index * 20, 120)}ms`,
-        background: isUser ? "transparent" : "#fafafa",
-        borderBottom: "1px solid #f0f0f0",
+        background: isUser ? "transparent" : "#f4ead6",
+        borderBottom: "1px solid #d9c9ad",
       }}
     >
       {/* Avatar */}
@@ -82,16 +82,16 @@ export default function ChatBubble({ message, index, animate = false }: ChatBubb
         {isUser ? (
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-            style={{ background: "#1a1a1a" }}
+            style={{ background: "#2a1818" }}
           >
             <User size={14} />
           </div>
         ) : (
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: "#fef3c7", border: "1.5px solid #fde68a" }}
+            style={{ background: "#EEE0CC", border: "1.5px solid #BA6A4C" }}
           >
-            <BookOpen size={14} style={{ color: "#d97706" }} />
+            <BookOpen size={14} style={{ color: "#7B2525" }} />
           </div>
         )}
       </div>
@@ -100,23 +100,23 @@ export default function ChatBubble({ message, index, animate = false }: ChatBubb
       <div className="flex-1 min-w-0">
         {/* Name + time */}
         <div className="flex items-baseline gap-2 mb-1.5">
-          <span className="text-[13px] font-semibold" style={{ color: isUser ? "#1a1a1a" : "#d97706" }}>
+          <span className="text-[13px] font-semibold" style={{ color: isUser ? "#2a1818" : "#7B2525" }}>
             {isUser ? "You" : "Vethathiri Wisdom"}
           </span>
-          <span className="text-[11px]" style={{ color: "#bbb" }}>
+          <span className="text-[11px]" style={{ color: "#8a7563" }}>
             {formatTime(message.timestamp)}
           </span>
         </div>
 
         {/* Body */}
         {isUser ? (
-          <p className="text-[15px] leading-relaxed" style={{ color: "#1a1a1a" }}>
+          <p className="text-[15px] leading-relaxed" style={{ color: "#2a1818" }}>
             {message.content}
           </p>
         ) : (
           <div
             className="prose-ai text-[15px] leading-relaxed"
-            style={{ color: message.isError ? "#ef4444" : "#1a1a1a" }}
+            style={{ color: message.isError ? "#ef4444" : "#2a1818" }}
             dangerouslySetInnerHTML={{
               __html: message.isError ? `⚠️ ${body}` : formatAIText(body),
             }}
@@ -127,7 +127,7 @@ export default function ChatBubble({ message, index, animate = false }: ChatBubb
         {shouldType && !done && (
           <span
             className="inline-block w-[2px] h-[1em] ml-0.5 align-middle rounded-sm"
-            style={{ background: "#d97706", animation: "cursorBlink 0.8s step-start infinite" }}
+            style={{ background: "#7B2525", animation: "cursorBlink 0.8s step-start infinite" }}
           />
         )}
       </div>
@@ -149,21 +149,21 @@ export function TypingIndicator() {
   return (
     <div
       className="flex gap-4 px-4 py-5"
-      style={{ background: "#fafafa", borderBottom: "1px solid #f0f0f0" }}
+      style={{ background: "#f4ead6", borderBottom: "1px solid #d9c9ad" }}
     >
       {/* Avatar */}
       <div className="flex-shrink-0 pt-0.5">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center"
-          style={{ background: "#fef3c7", border: "1.5px solid #fde68a" }}
+          style={{ background: "#EEE0CC", border: "1.5px solid #BA6A4C" }}
         >
-          <BookOpen size={14} style={{ color: "#d97706" }} />
+          <BookOpen size={14} style={{ color: "#7B2525" }} />
         </div>
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-2">
-          <span className="text-[13px] font-semibold" style={{ color: "#d97706" }}>
+          <span className="text-[13px] font-semibold" style={{ color: "#7B2525" }}>
             Vethathiri Wisdom
           </span>
         </div>
@@ -172,13 +172,13 @@ export function TypingIndicator() {
         <div className="flex items-center gap-2">
           {/* Bouncing dots */}
           <div className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full dot1" style={{ background: "#d97706" }} />
-            <div className="w-1.5 h-1.5 rounded-full dot2" style={{ background: "#d97706" }} />
-            <div className="w-1.5 h-1.5 rounded-full dot3" style={{ background: "#d97706" }} />
+            <div className="w-1.5 h-1.5 rounded-full dot1" style={{ background: "#7B2525" }} />
+            <div className="w-1.5 h-1.5 rounded-full dot2" style={{ background: "#7B2525" }} />
+            <div className="w-1.5 h-1.5 rounded-full dot3" style={{ background: "#7B2525" }} />
           </div>
           <span
             className="text-[13px] italic"
-            style={{ color: "#b45309", minWidth: 170 }}
+            style={{ color: "#5a1a1a", minWidth: 170 }}
           >
             The Guru is thinking{dotStr}
           </span>
